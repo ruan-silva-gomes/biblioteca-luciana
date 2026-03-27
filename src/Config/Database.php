@@ -13,12 +13,20 @@ use Exception;
  */
 class Database
 {
-    // --- Configurações de Acesso ao Servidor ---
-    private string $host = "127.0.0.1";           // Endereço local (localhost)
-    private string $port = "3306";                // Porta customizada do MariaDB/MySQL no XAMPP
-    private string $db_name = "biblioteca_vision"; // Nome do banco de dados criado
-    private string $username = "root";            // Usuário padrão do XAMPP
-    private string $password = "";                // Senha padrão (vazia) do XAMPP
+    // --- Configurações de Acesso ao Servidor (Carregadas do .env) ---
+    private string $host;
+    private string $port;
+    private string $db_name;
+    private string $username;
+    private string $password;
+
+    public function __construct() {
+        $this->host = env('DB_HOST', '127.0.0.1');
+        $this->port = env('DB_PORT', '3306');
+        $this->db_name = env('DB_NAME', 'biblioteca_vision');
+        $this->username = env('DB_USER', 'root');
+        $this->password = env('DB_PASS', '');
+    }
 
     // Link ativo da conexão
     public ?mysqli $conn = null;
