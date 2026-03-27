@@ -196,4 +196,17 @@ class MySQLStudentRepository implements StudentRepositoryInterface
 
         return $data;
     }
+
+    public function getTotalCount(): int
+    {
+        $res = $this->db->query("SELECT COUNT(*) as total FROM {$this->table}");
+        return ($res && $row = $res->fetch_assoc()) ? (int)$row['total'] : 0;
+    }
+
+    public function getClassDistribution(): array
+    {
+        $sql = "SELECT turma, COUNT(*) as count FROM {$this->table} GROUP BY turma ORDER BY count DESC";
+        $res = $this->db->query($sql);
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
 }

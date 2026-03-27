@@ -28,6 +28,6 @@ define('COLOR_SECONDARY', '#FFFFFF'); // Cor Institucional: Branco Neve
 date_default_timezone_set('America/Sao_Paulo');
 
 // --- Integração com I.A. (LívIA Support) ---
-// Utilizamos o gateway OpenRouter para acessar modelos GPT/Gemini
-define('OPENROUTER_API_KEY', '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');
-define('OPENROUTER_MODEL', 'google/gemini-2.0-flash-lite-001');
+// Utilizamos a API oficial do Google Gemini com a chave fornecida
+define('GEMINI_API_KEY', 'AIzaSyDI87tjUiOH5cRnbYCtfqmkA_8d5uuQFRw');
+define('GEMINI_MODEL', 'gemini-2.5-flash-lite');

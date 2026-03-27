@@ -19,4 +19,6 @@ interface StudentRepositoryInterface
     public function logAccess(int $studentId): bool;
     public function getDashboardStats(string $period = 'today'): array;
     public function getHistory(int $limit = 50): array;
+    public function getTotalCount(): int;
+    public function getClassDistribution(): array;
 }

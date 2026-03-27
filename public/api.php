@@ -41,12 +41,15 @@ try {
     $studentService = new StudentService($studentRepo);
     $turmaService = new TurmaService($turmaRepo);
     $exportService = new ExportService($db);
-    $chatService = new ChatService($studentRepo);
+    // A linha $chatService = new ChatService($studentRepo); será substituída abaixo.
 
     // 4. Instancia Controllers (Presentation) - Injetando dependências
     $studentController = new StudentController($studentService);
-    $classController = new TurmaController($turmaService);
+    $classController = new TurmaController($turmaService); // Mantido como $classController para consistência com o original
     $exportController = new ExportController($exportService);
+
+    // IA: Injetamos Student e Turma para contexto total
+    $chatService = new ChatService($studentRepo, $turmaRepo);
     $chatController = new ChatController($chatService);
 
     // Obtém a ação solicitada via URL (ex: api.php?action=list_students)

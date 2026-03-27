@@ -3,48 +3,52 @@
 namespace App\Application\Services;
 
 use App\Domain\Repositories\StudentRepositoryInterface;
+use App\Domain\Repositories\TurmaRepositoryInterface;
 use Exception;
 
 /**
  * Serviço de Integração com LívIA (IA).
- * Camada de Aplicação: Gerencia a comunicação com OpenRouter.
+ * Camada de Aplicação: Gerencia a comunicação com Gemini API.
  */
 class ChatService
 {
     private string $logFile;
 
-    public function __construct(private StudentRepositoryInterface $studentRepository)
-    {
+    public function __construct(
+        private StudentRepositoryInterface $studentRepository,
+        private TurmaRepositoryInterface $turmaRepository
+    ) {
         $this->logFile = __DIR__ . '/../../../chat_logs.json';
     }
 
     public function askLivia(string $userMessage): array
     {
-        if (!defined('OPENROUTER_API_KEY') || empty(OPENROUTER_API_KEY)) {
-            return ['success' => false, 'message' => 'LívIA: Chave de API não configurada.'];
+        if (!defined('GEMINI_API_KEY') || empty(GEMINI_API_KEY)) {
+            return ['success' => false, 'message' => 'LívIA: Chave de API do Google não configurada.'];
         }
 
         try {
-            // Usa o repositório para obter o resumo do sistema (precisamos adicionar este método na interface!)
-            // No Clean Arch, o resumo deveria ser gerado no serviço, não no repositório.
-            // Mas para manter compatibilidade com a consulta complexa, vamos usar o repositório por enquanto.
-            // Ajuste: Vou adicionar getSystemSummary() no StudentRepository ou gerar aqui mesmo.
-            
-            // Vamos gerar o resumo aqui usando os dados do repositório para ser mais Clean.
+            // Gera o resumo completo do sistema para máxima inteligência
             $summary = $this->generateSystemSummary();
 
-            $systemPrompt = "Você é LívIA, a assistente do SISTEMA BIBLIOTECA.\n";
-            $systemPrompt .= "DADOS DO SISTEMA HOJE:\n" . $summary;
+            $systemPrompt = "Você é LívIA, a inteligência central e analista do SISTEMA BIBLIOTECA.\n";
+            $systemPrompt .= "Você tem acesso total aos dados de alunos, turmas e logs de frequência.\n";
+            $systemPrompt .= "OBJETIVO: Responder perguntas administrativa, gerar insights de frequência e ajudar na gestão.\n";
+            $systemPrompt .= "ESTADO ATUAL DO SISTEMA:\n" . $summary;
 
+            // Estrutura específica da API Gemini
             $data = [
-                "model" => OPENROUTER_MODEL,
-                "messages" => [
-                    ["role" => "system", "content" => $systemPrompt],
-                    ["role" => "user", "content" => $userMessage]
+                "contents" => [
+                    [
+                        "role" => "user",
+                        "parts" => [
+                            ["text" => $systemPrompt . "\n\nPergunta do Administrador: " . $userMessage]
+                        ]
+                    ]
                 ]
             ];
 
-            $response = $this->callOpenRouter($data);
+            $response = $this->callGemini($data);
             $this->saveLog($userMessage, $response);
 
             return ['success' => true, 'response' => $response];
@@ -56,27 +60,51 @@ class ChatService
 
     private function generateSystemSummary(): string
     {
-        $stats = $this->studentRepository->getDashboardStats();
-        $history = $this->studentRepository->getHistory(10);
+        // 1. Estatísticas Gerais
+        $totalStudents = $this->studentRepository->getTotalCount();
+        $turmas = $this->turmaRepository->getAll();
+        $totalTurmas = count($turmas);
+        $distribution = $this->studentRepository->getClassDistribution();
+
+        // 2. Fluxo de Acesso (Hoje, Semana, Mês)
+        $statsToday = $this->studentRepository->getDashboardStats('today');
+        $statsWeek = $this->studentRepository->getDashboardStats('week');
+        $statsMonth = $this->studentRepository->getDashboardStats('month');
+
+        // 3. Histórico Recente
+        $history = $this->studentRepository->getHistory(20);
         
-        $str = "Total acessos hoje: " . $stats['total_acessos'] . "\nÚltimos acessos:\n";
-        foreach ($history as $h) {
-            $str .= "- " . $h['nome'] . " (" . $h['turma'] . ") às " . date('H:i', strtotime($h['horario_entrada'])) . "\n";
+        $str = "=== RESUMO EXECUTIVO ===\n";
+        $str .= "Alunos Totais: $totalStudents | Turmas Totais: $totalTurmas\n";
+        
+        $str .= "\nDISTRIBUIÇÃO DE ALUNOS:\n";
+        foreach ($distribution as $d) {
+            $turmaNome = $d['turma'] ?? 'Sem Turma';
+            $str .= "- $turmaNome: " . $d['count'] . " alunos\n";
         }
+
+        $str .= "\nFLUXO DE ACESSOS:\n";
+        $str .= "- Hoje: " . $statsToday['total_acessos'] . "\n";
+        $str .= "- Esta Semana: " . $statsWeek['total_acessos'] . "\n";
+        $str .= "- Este Mês: " . $statsMonth['total_acessos'] . "\n";
+
+        $str .= "\nÚLTIMOS 20 ACESSOS REGISTRADOS:\n";
+        foreach ($history as $h) {
+            $str .= "- " . $h['nome'] . " (Turma: " . $h['turma'] . ") em " . date('d/m/Y H:i', strtotime($h['horario_entrada'])) . "\n";
+        }
+
         return $str;
     }
 
-    private function callOpenRouter(array $data): string
+    private function callGemini(array $data): string
     {
-        $ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
+        $endpoint = "https://generativelanguage.googleapis.com/v1/models/" . GEMINI_MODEL . ":generateContent?key=" . GEMINI_API_KEY;
+        
+        $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer " . OPENROUTER_API_KEY,
-            "Content-Type: application/json",
-            "X-Title: Biblioteca Clean System"
-        ]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
@@ -84,11 +112,13 @@ class ChatService
         curl_close($ch);
 
         $result = json_decode($response, true);
-        if ($httpCode === 200 && isset($result['choices'][0]['message']['content'])) {
-            return $result['choices'][0]['message']['content'];
+        
+        if ($httpCode === 200 && isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+            return $result['candidates'][0]['content']['parts'][0]['text'];
         }
 
-        throw new Exception("Falha OpenRouter (HTTP $httpCode)");
+        $errorMsg = $result['error']['message'] ?? "Falha na resposta da API (HTTP $httpCode)";
+        throw new Exception($errorMsg);
     }
 
     private function saveLog(string $userMsg, string $aiMsg): void
