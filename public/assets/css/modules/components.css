@@ -1,0 +1,76 @@
+/**
+ * COMPONENTES GENÉRICOS E NOTIFICAÇÕES
+ * Botões, Toasts e Feedbacks visuais.
+ */
+
+/* Botões Clássicos SENAI */
+button, .btn {
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(210, 35, 42, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(210, 35, 42, 0.3);
+}
+
+.btn-secondary {
+    background-color: #f8f9fa;
+    color: var(--text-dark);
+    border: 1px solid var(--gray-border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--gray-light);
+}
+
+/* SISTEMA DE NOTIFICAÇÕES (Toasts) */
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999;
+}
+
+.toast {
+    background: var(--white);
+    color: var(--text-dark);
+    padding: 1.2rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 320px;
+    max-width: 450px;
+    transform: translateX(120%);
+    animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    border-left: 6px solid var(--primary);
+    font-weight: 700;
+}
+
+.toast.error { border-left-color: var(--error); }
+.toast.success { border-left-color: var(--success); }
+
+@keyframes slideIn {
+    to { transform: translateX(0); }
+}

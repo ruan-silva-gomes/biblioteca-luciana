@@ -36,15 +36,17 @@ class ExportService
         if (!$result) throw new Exception("Erro consulta exportação: " . $this->db->error);
 
         $this->outputCsv('relatorio_acessos_' . date('Y-m-d_H-i') . '.csv', [
-            ['ID do Log', 'Nome do Usuário', 'Turma', 'Data/Hora'],
+            ['ID do Log', 'Nome do Usuário', 'Turma', 'Data', 'Hora'],
             function() use ($result) {
                 $rows = [];
                 while ($data = $result->fetch_assoc()) {
+                    $timestamp = strtotime($data['horario_entrada']);
                     $rows[] = [
                         $data['log_id'],
                         $data['nome'],
                         $data['turma'] ?? 'Sem Turma',
-                        date('d/m/Y H:i:s', strtotime($data['horario_entrada']))
+                        sprintf('="%s"', date('d/m/Y', $timestamp)),
+                        date('H:i:s', $timestamp)
                     ];
                 }
                 return $rows;
@@ -59,16 +61,27 @@ class ExportService
         if (!$result) throw new Exception("Erro consulta exportação alunos.");
 
         $this->outputCsv('relatorio_alunos_' . date('Y-m-d_H-i') . '.csv', [
-            ['ID', 'Nome', 'Turma', 'Cadastrado em', 'Último Acesso'],
+            ['ID', 'Nome', 'Turma', 'Data de Cadastro', 'Data Último Acesso', 'Hora Último Acesso'],
             function() use ($result) {
                 $rows = [];
                 while ($data = $result->fetch_assoc()) {
+                    $cadastro = $data['rosto_cadastrado_at'] ? sprintf('="%s"', date('d/m/Y', strtotime($data['rosto_cadastrado_at']))) : 'N/A';
+                    
+                    $ultimoAcessoData = 'Nunca';
+                    $ultimoAcessoHora = '-';
+                    if ($data['ultima_entrada_at']) {
+                        $ts = strtotime($data['ultima_entrada_at']);
+                        $ultimoAcessoData = sprintf('="%s"', date('d/m/Y', $ts));
+                        $ultimoAcessoHora = date('H:i:s', $ts);
+                    }
+
                     $rows[] = [
                         $data['id'],
                         $data['nome'],
                         $data['turma'] ?? 'Sem Turma',
-                        $data['rosto_cadastrado_at'] ? date('d/m/Y', strtotime($data['rosto_cadastrado_at'])) : 'N/A',
-                        $data['ultima_entrada_at'] ? date('d/m/Y H:i:s', strtotime($data['ultima_entrada_at'])) : 'Nunca'
+                        $cadastro,
+                        $ultimoAcessoData,
+                        $ultimoAcessoHora
                     ];
                 }
                 return $rows;
