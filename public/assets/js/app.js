@@ -402,6 +402,18 @@ function changePeriod(period) {
     const activeBtn = document.getElementById(`btn-period-${period}`);
     if (activeBtn) activeBtn.classList.add('active');
 
+    // Atualiza o texto e a ação do botão de exportação no dashboard
+    const exportBtn = document.getElementById('btn-export-dashboard');
+    if (exportBtn) {
+        const labels = { 
+            'today': 'de Hoje', 
+            'week': 'da Semana', 
+            'month': 'do Mês' 
+        };
+        exportBtn.innerHTML = `<i class="fas fa-file-download"></i> Planilha ${labels[period]}`;
+        exportBtn.setAttribute('onclick', `exportExcel('${period}')`);
+    }
+
     // Atualiza os dados
     initCharts(period);
 }

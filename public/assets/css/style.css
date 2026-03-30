@@ -337,102 +337,6 @@ tr:hover td {
     border-color: var(--primary);
 }
 
-/* Chat Simples IA */
-#ai-chat-wrapper {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 2000;
-}
-
-#btn-open-chat {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 4px 15px rgba(210, 35, 42, 0.4);
-}
-
-#ai-chat-window {
-    width: 350px;
-    height: 500px;
-    background: white;
-    border-radius: 15px;
-    border: 1px solid var(--gray-border);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.chat-header {
-    padding: 1rem;
-    background: var(--primary);
-    color: white;
-    font-weight: bold;
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.btn-close-chat {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    line-height: 1;
-    transition: var(--transition);
-}
-
-.btn-close-chat:hover {
-    transform: scale(1.1);
-    opacity: 0.8;
-}
-
-.chat-body {
-    flex: 1;
-    padding: 1rem;
-    overflow-y: auto;
-}
-
-.message {
-    padding: 10px 14px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    max-width: 85%;
-}
-
-.message.ai {
-    background: #f1f1f1;
-    align-self: flex-start;
-}
-
-.message.user {
-    background: var(--primary);
-    color: white;
-    align-self: flex-end;
-}
-
-.chat-footer {
-    padding: 1rem;
-    border-top: 1px solid var(--gray-border);
-    display: flex;
-    gap: 8px;
-}
-
-#chat-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid var(--gray-border);
-    border-radius: 20px;
-    outline: none;
-}
-
 /* Sistema de Notificações (Toasts) */
 #toast-container {
     position: fixed;
@@ -681,11 +585,4 @@ tr:hover td {
         width: 100%;
     }
 
-    /* Ajuste Chat IA para Mobile */
-    #ai-chat-window {
-        width: calc(100% - 40px);
-        height: 70vh;
-        bottom: 100px;
-        right: 20px;
-    }
 }

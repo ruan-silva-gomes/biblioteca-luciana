@@ -146,7 +146,7 @@ header("Cache-Control: no-cache, must-revalidate");
 
                     <h4 style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; text-align: left; border-top: 1px solid #eee; padding-top: 1rem;">Relatórios (Excel)</h4>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <button class="btn-secondary" onclick="exportExcel('today')" style="width: 100%; font-size: 0.85rem;"><i class="fas fa-file-download"></i> Planilha de Hoje</button>
+                        <button id="btn-export-dashboard" class="btn-secondary" onclick="exportExcel('today')" style="width: 100%; font-size: 0.85rem;"><i class="fas fa-file-download"></i> Planilha de Hoje</button>
                     </div>
                 </div>
             </div>
@@ -357,28 +357,9 @@ header("Cache-Control: no-cache, must-revalidate");
     <!-- Container flutuante para alertas rápidos (Toasts) -->
     <div id="toast-container"></div>
 
-    <!-- ASSISTENTE VIRTUAL LívIA (Chat por IA) -->
-    <div id="ai-chat-wrapper">
-        <div id="ai-chat-window" class="hidden">
-            <div class="chat-header">
-                <div>LívIA - Suporte ao Sistema</div>
-                <button class="btn-close-chat" onclick="toggleChat()">×</button>
-            </div>
-            <div id="chat-messages" class="chat-body">
-                <div class="message ai">Olá! Como posso ajudar você hoje?</div>
-            </div>
-            <div class="chat-footer">
-                <input type="text" id="chat-input" placeholder="Pergunte sobre os acessos..." onkeypress="handleChatKey(event)">
-                <button id="btn-send-chat" onclick="sendMessage()">➤</button>
-            </div>
-        </div>
-        <button id="btn-open-chat" onclick="toggleChat()"><i class="fas fa-robot"></i></button>
-    </div>
-
     <!-- CARREGAMENTO DOS SCRIPTS (Final do Body para performance) -->
     <script src="assets/js/facialRecognition.js?v=<?php echo time(); ?>"></script>
     <script src="assets/js/app.js?v=<?php echo time(); ?>"></script>
-    <script src="assets/js/chat.js?v=<?php echo time(); ?>"></script>
 </body>
 
 </html>
